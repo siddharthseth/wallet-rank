@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import ReactDOM from 'react-dom';
 import 'bulma/css/bulma.css';
 import './WalletRank.css';
-import UserGraph from './components/UserGraph.js';
+import UserGraph from './components/UserGraph/UserGraph.js';
 
 class WalletRank extends Component {
 
@@ -21,6 +21,12 @@ class WalletRank extends Component {
         {
           id: "jfa8dsjf9ajdsfojdas",
           rank: 650
+        }
+      ],
+      links: [
+        {
+          "source": "9jds90afj0sd9fisajf",
+          "target": "jfa8dsjf9ajdsfojdas" 
         }
       ]
     };
@@ -69,7 +75,7 @@ class WalletRank extends Component {
   render() {
     return (
       <div className="WalletRank">
-        <div className="container">
+        <body className="container">
           <section className="search">
             <h1>Add users to track:</h1>
             <form className="search" id="searchUser">
@@ -85,7 +91,11 @@ class WalletRank extends Component {
             </form>
           </section>
 
-          <UserGraph users={this.state.users} width="1000" height = "500"/>
+          <UserGraph 
+            users={this.state.users} 
+            width="800" 
+            height = "500"
+            links={this.state.links}/>
 
           <section className="users">
             <h1>Current users being tracked:</h1>
@@ -101,7 +111,7 @@ class WalletRank extends Component {
               ))}
             </ul>
           </section>
-        </div>
+        </body>
       </div>
     );
   }
