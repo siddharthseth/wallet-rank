@@ -2,3 +2,22 @@ circle {
   fill: #ccc;
   stroke: #fff;
 }
+
+.unfixed {
+  stroke-width: 1.5px;
+}
+
+.fixed {
+  stroke-width: 3px;
+}
+
+path {
+  fill: none;
+  stroke: #666;
+  stroke-width: 1.5px;
+}
+
+.link {
+  stroke: blue;
+  stroke-width: 3px;
+}

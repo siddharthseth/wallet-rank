@@ -13,16 +13,16 @@ class WalletRank extends Component {
     this.removeUser = this.removeUser.bind(this);
 
     this.state = {
-      users: [
-        {
-          id: "9jds90afj0sd9fisajf",
+      users: {
+        "9jds90afj0sd9fisajf": {
+          name: "9jds90afj0sd9fisajf",
           rank: 700
         },
-        {
-          id: "jfa8dsjf9ajdsfojdas",
+        "jfa8dsjf9ajdsfojdas": {
+          name: "jfa8dsjf9ajdsfojdas",
           rank: 650
         }
-      ],
+      },
       links: [
         {
           "source": "9jds90afj0sd9fisajf",
@@ -75,7 +75,7 @@ class WalletRank extends Component {
   render() {
     return (
       <div className="WalletRank">
-        <body className="container">
+        <div className="container">
           <section className="search">
             <h1>Add users to track:</h1>
             <form className="search" id="searchUser">
@@ -100,18 +100,18 @@ class WalletRank extends Component {
           <section className="users">
             <h1>Current users being tracked:</h1>
             <ul>
-              {this.state.users.map(user => (
-                <li key={user.id}>
-                  {user.id} &nbsp;
+              {Object.keys(this.state.users).map((key, index) => (
+                <li key={key}>
+                  {key} &nbsp;
                   <span
                     className="delete"
-                    onClick={() => this.removeUser(user)}
+                    onClick={() => this.removeUser(this.state.users[key])}
                   />
                 </li>
               ))}
             </ul>
           </section>
-        </body>
+        </div>
       </div>
     );
   }
