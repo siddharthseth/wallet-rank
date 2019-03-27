@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import ReactDOM from 'react-dom';
 import 'bulma/css/bulma.css';
 import './WalletRank.css';
-import UserGraph from './components/UserGraph.js';
+import UserGraph from './components/UserGraph/UserGraph.js';
 
 class WalletRank extends Component {
 
@@ -13,14 +13,20 @@ class WalletRank extends Component {
     this.removeUser = this.removeUser.bind(this);
 
     this.state = {
-      users: [
-        {
-          id: "9jds90afj0sd9fisajf",
+      users: {
+        "9jds90afj0sd9fisajf": {
+          name: "9jds90afj0sd9fisajf",
           rank: 700
         },
-        {
-          id: "jfa8dsjf9ajdsfojdas",
+        "jfa8dsjf9ajdsfojdas": {
+          name: "jfa8dsjf9ajdsfojdas",
           rank: 650
+        }
+      },
+      links: [
+        {
+          "source": "9jds90afj0sd9fisajf",
+          "target": "jfa8dsjf9ajdsfojdas" 
         }
       ]
     };
@@ -85,17 +91,21 @@ class WalletRank extends Component {
             </form>
           </section>
 
-          <UserGraph users={this.state.users} width="1000" height = "500"/>
+          <UserGraph 
+            users={this.state.users} 
+            width="800" 
+            height = "500"
+            links={this.state.links}/>
 
           <section className="users">
             <h1>Current users being tracked:</h1>
             <ul>
-              {this.state.users.map(user => (
-                <li key={user.id}>
-                  {user.id} &nbsp;
+              {Object.keys(this.state.users).map((key, index) => (
+                <li key={key}>
+                  {key} &nbsp;
                   <span
                     className="delete"
-                    onClick={() => this.removeUser(user)}
+                    onClick={() => this.removeUser(this.state.users[key])}
                   />
                 </li>
               ))}
