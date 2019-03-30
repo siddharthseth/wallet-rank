@@ -1,6 +1,5 @@
 circle {
-  fill: #ccc;
-  stroke: #fff;
+  stroke: white;
 }
 
 .unfixed {
@@ -18,6 +17,6 @@ path {
 }
 
 .link {
-  stroke: blue;
-  stroke-width: 3px;
+  stroke: white;
+  stroke-width: 1.5px;
 }
