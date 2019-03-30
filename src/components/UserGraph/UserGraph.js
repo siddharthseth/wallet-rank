@@ -62,7 +62,7 @@ class UserGraph extends React.Component {
     // radius scale
     let rScale = d3.scalePow()
                     .domain([300, 850])
-                    .range([5, 20]);
+                    .range([7, 25]);
 
     let colorScale = d3.scaleThreshold()
         .domain(d3.range(300, 850, (850-300)/10))
@@ -137,8 +137,6 @@ class UserGraph extends React.Component {
     }
 
     let node = this.node;
-    console.log(node);
-    console.log(d);
 
     if (d.fixed === true){
       d.fx = d.x;
