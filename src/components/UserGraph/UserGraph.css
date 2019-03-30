@@ -20,3 +20,7 @@ path {
   stroke: white;
   stroke-width: 1.5px;
 }
+
+svg { 
+  width:100% 
+}

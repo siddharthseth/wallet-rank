@@ -3,6 +3,8 @@ import ReactDOM from 'react-dom';
 import 'bulma/css/bulma.css';
 import './WalletRank.css';
 import UserGraph from './components/UserGraph/UserGraph.js';
+import NavBar from './components/NavBar/NavBar.js';
+import Footer from './components/Footer/Footer.js';
 import * as d3 from "d3";
 
 class WalletRank extends Component {
@@ -47,7 +49,7 @@ class WalletRank extends Component {
     });
   }
 
-
+  // TODO(sid): update this function
   searchUser(e) {
     // Prevent button click from submitting form
     e.preventDefault();
@@ -73,6 +75,7 @@ class WalletRank extends Component {
     }
   }
 
+  // TODO(sid): update this function 
   removeUser(user) {
     let users = this.state.users;
 
@@ -87,41 +90,15 @@ class WalletRank extends Component {
     return (
       <div className="WalletRank">
         <div className="container">
-          <section className="search">
-            <h1>Add users to track:</h1>
-            <form className="search" id="searchUser">
-              <input
-                type="text"
-                className="input"
-                id="searchInput"
-                placeholder="Add a user to track..."
-              />
-              <button className="button is-info" onClick={this.searchUser}>
-                Add User
-              </button>
-            </form>
-          </section>
+          <NavBar/>
 
           <UserGraph 
             users={this.state.users}
             links={this.state.links}
             width="800" 
-            height = "500"/>
+            height = "600"/>
 
-          <section className="users">
-            <h1>Current users being tracked:</h1>
-            <ul>
-              {Object.keys(this.state.users).map((key, index) => (
-                <li key={key}>
-                  {key} &nbsp;
-                  <span
-                    className="delete"
-                    onClick={() => this.removeUser(this.state.users[key])}
-                  />
-                </li>
-              ))}
-            </ul>
-          </section>
+          <Footer/>
         </div>
       </div>
     );
