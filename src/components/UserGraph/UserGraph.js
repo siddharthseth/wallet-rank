@@ -25,6 +25,7 @@ class UserGraph extends React.Component {
 
 	drawGraph() {
     const node = this.node;
+
     this.force = d3.forceSimulation()
       .nodes(d3.values(this.props.users))
       .force("link", d3.forceLink(this.props.links).id(function(d) {
@@ -60,15 +61,27 @@ class UserGraph extends React.Component {
 
     // radius scale
     let rScale = d3.scalePow()
-                    .domain([0, 750])
-                    .range([1, 10]);
+                    .domain([300, 850])
+                    .range([5, 20]);
+
+    let colorScale = d3.scaleThreshold()
+        .domain(d3.range(300, 850, (850-300)/10))
+        .range(d3.schemeRdYlGn[9]); 
+
 
     // add the nodes
     d3.select(node)
       .selectAll(".node")
       .append("circle")
       .attr("r", function(node) { return rScale(node.rank); })
-      .attr("class", "unfixed");
+      .attr("class", function(node) {
+        if (node.fixed) {
+          return "fixed";
+        } else {
+          return "unfixed";
+        }
+      })
+      .attr("fill", function(node) { return colorScale(node.rank); });
 	}
 
   tick() {
@@ -121,16 +134,14 @@ class UserGraph extends React.Component {
     if (clickDurationMs < 400) {
       d.fixed = !d.fixed;
     }
-    console.log(d);
+
     if (d.fixed === true){
-       d.fx = d.x;
-       d.fy = d.y;
-       d3.select(this.node.childNodes[0]).attr("class", "fixed");
+      d.fx = d.x;
+      d.fy = d.y;
     }
     else{
       d.fx = null;
       d.fy = null;
-      d3.select(this.node.childNodes[0]).attr("class", "unfixed");
     }
   }
 
