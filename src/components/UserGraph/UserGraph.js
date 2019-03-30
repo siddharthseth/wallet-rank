@@ -81,6 +81,7 @@ class UserGraph extends React.Component {
           return "unfixed";
         }
       })
+      .attr("id", function(node) { return node.name; })
       .attr("fill", function(node) { return colorScale(node.rank); });
 	}
 
@@ -135,13 +136,19 @@ class UserGraph extends React.Component {
       d.fixed = !d.fixed;
     }
 
+    let node = this.node;
+    console.log(node);
+    console.log(d);
+
     if (d.fixed === true){
       d.fx = d.x;
       d.fy = d.y;
+      d3.select(node).select('[id="' + d.name + '"]').attr("class", "fixed");
     }
     else{
       d.fx = null;
       d.fy = null;
+      d3.select(node).select('[id="' + d.name + '"]').attr("class", "unfixed");
     }
   }
 
