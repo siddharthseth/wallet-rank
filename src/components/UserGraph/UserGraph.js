@@ -62,7 +62,7 @@ class UserGraph extends React.Component {
     // radius scale
     let rScale = d3.scalePow()
                     .domain([300, 850])
-                    .range([5, 20]);
+                    .range([7, 25]);
 
     let colorScale = d3.scaleThreshold()
         .domain(d3.range(300, 850, (850-300)/10))
@@ -81,6 +81,7 @@ class UserGraph extends React.Component {
           return "unfixed";
         }
       })
+      .attr("id", function(node) { return node.name; })
       .attr("fill", function(node) { return colorScale(node.rank); });
 	}
 
@@ -135,13 +136,17 @@ class UserGraph extends React.Component {
       d.fixed = !d.fixed;
     }
 
+    let node = this.node;
+
     if (d.fixed === true){
       d.fx = d.x;
       d.fy = d.y;
+      d3.select(node).select('[id="' + d.name + '"]').attr("class", "fixed");
     }
     else{
       d.fx = null;
       d.fy = null;
+      d3.select(node).select('[id="' + d.name + '"]').attr("class", "unfixed");
     }
   }
 
