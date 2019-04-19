@@ -5,7 +5,6 @@ import './UserGraph.css'
 class UserGraph extends React.Component {
 	constructor(props) {
 		super(props);
-
     this.firstClick = new Date();
 
     this.drawGraph = this.drawGraph.bind(this);
@@ -16,19 +15,23 @@ class UserGraph extends React.Component {
 	}
 
 	componentDidMount() {
-		this.drawGraph();
+		this.drawGraph(this.props.users, this.props.links);
 	}
 
-  componentDidUpdate() {
-    this.drawGraph();
+  componentDidUpdate(prevProps, prevState) {
+    // let users = {...prevProps.users, ...this.props.users};
+    // let links = [...prevProps.links, ...this.props.links]
+    // console.log(users);
+    // console.log(links);
+    this.drawGraph(this.props.users, this.props.links);
   }
 
-	drawGraph() {
+	drawGraph(users, links) {
     const node = this.node;
 
     this.force = d3.forceSimulation()
-      .nodes(d3.values(this.props.users))
-      .force("link", d3.forceLink(this.props.links).id(function(d) {
+      .nodes(d3.values(users))
+      .force("link", d3.forceLink(links).id(function(d) {
         return d.name;
       }).distance(60))
       .force('center', d3.forceCenter(this.props.width / 2, this.props.height / 2))
@@ -38,14 +41,31 @@ class UserGraph extends React.Component {
       .alphaTarget(1)
       .on("tick", this.tick);
 
+    // build the arrow.
+    d3.select(node)
+      .selectAll("marker")
+      .data(["end"])      // Different link/path types can be defined here
+      .enter().append("marker")    // This section adds in the arrows
+      .attr("id", String)
+      .attr("viewBox", "0 -5 10 10")
+      .attr("refX", 20)
+      .attr("refY", -1.5)
+      .attr("markerWidth", 10)
+      .attr("markerHeight", 10)
+      .attr("orient", "auto")
+      .append("path")
+      .attr("class", "marker-path")
+      .attr("d", "M0,-5L10,0L0,5");
+
     // add the links and the arrows
     d3.select(node)
       .append("g")
       .selectAll("path")
-      .data(this.props.links)
+      .data(links)
       .enter()
       .append("path")
-      .attr("class", "link");
+      .attr("class", "link")
+      .attr("marker-end", "url(#end)");
 
     // define the nodes
     d3.select(node)
@@ -60,9 +80,9 @@ class UserGraph extends React.Component {
       );
 
     // radius scale
-    let rScale = d3.scalePow()
+    let rScale = d3.scaleLinear()
                     .domain([300, 850])
-                    .range([7, 25]);
+                    .range([25, 7]);
 
     let colorScale = d3.scaleThreshold()
         .domain(d3.range(300, 850, (850-300)/10))
@@ -73,23 +93,26 @@ class UserGraph extends React.Component {
     d3.select(node)
       .selectAll(".node")
       .append("circle")
-      .attr("r", function(node) { return rScale(node.rank); })
+      .attr("r", 15)
       .attr("class", function(node) {
-        if (node.fixed) {
+        if (node.fixed || node.is_parent) {
           return "fixed";
         } else {
           return "unfixed";
         }
       })
       .attr("id", function(node) { return node.name; })
-      .attr("fill", function(node) { return colorScale(node.rank); });
+      .attr("fill", function(node) { 
+        if (node.rank)
+         return colorScale(node.rank);
+        return 'blue' });
 	}
 
   tick() {
     const node = this.node;
     
     d3.select(node)
-      .selectAll("path")
+      .selectAll(".link")
       .attr("d", function(d) {
         var dx = d.target.x - d.source.x,
             dy = d.target.y - d.source.y,
@@ -142,6 +165,7 @@ class UserGraph extends React.Component {
       d.fx = d.x;
       d.fy = d.y;
       d3.select(node).select('[id="' + d.name + '"]').attr("class", "fixed");
+      this.props.loadUser(d.name, true);
     }
     else{
       d.fx = null;
