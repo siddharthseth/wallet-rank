@@ -5,6 +5,7 @@ import './WalletRank.css';
 import UserGraph from './components/UserGraph/UserGraph.js';
 import NavBar from './components/NavBar/NavBar.js';
 import Footer from './components/Footer/Footer.js';
+import Loader from 'react-loader-spinner';
 import * as d3 from "d3";
 import * as _ from "lodash";
 
@@ -162,7 +163,17 @@ class WalletRank extends Component {
             height = {this.HEIGHT}
             loadUser={this.loadUsersAndLinks.bind(this)} /> 
             :
-          <svg width={this.WIDTH} height={this.HEIGHT}></svg>}
+            <div class="load" height={this.HEIGHT} width={this.WIDTH}>
+              <div class="loading">
+                <Loader
+                  type="ThreeDots" 
+                  width="100" 
+                  height="100"
+                  color="white"
+                />
+              </div>
+            </div>
+          }
 
           <Footer/>
         </div>
