@@ -1,5 +1,7 @@
 circle {
   stroke: white;
+  position: fixed;
+  z-index: -1;
 }
 
 .unfixed {
@@ -8,6 +10,7 @@ circle {
 
 .fixed {
   stroke-width: 3px;
+  fill: red;
 }
 
 path {

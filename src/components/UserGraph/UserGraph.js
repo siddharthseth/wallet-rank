@@ -19,10 +19,6 @@ class UserGraph extends React.Component {
 	}
 
   componentDidUpdate(prevProps, prevState) {
-    // let users = {...prevProps.users, ...this.props.users};
-    // let links = [...prevProps.links, ...this.props.links]
-    // console.log(users);
-    // console.log(links);
     this.drawGraph(this.props.users, this.props.links);
   }
 
@@ -96,21 +92,25 @@ class UserGraph extends React.Component {
       .attr("r", 15)
       .attr("class", function(node) {
         if (node.fixed || node.is_parent) {
+          node.fixed = true;
           return "fixed";
         } else {
           return "unfixed";
         }
       })
       .attr("id", function(node) { return node.name; })
-      .attr("fill", function(node) { 
-        if (node.rank)
-         return colorScale(node.rank);
-        return 'blue' });
+      .attr("fill", 'blue');
 	}
 
   tick() {
     const node = this.node;
-    
+
+    d3.select(node)
+      .selectAll(".node")
+      .attr("transform", function(d) {
+        return "translate(" + d.x + "," + d.y + ")";
+      });
+
     d3.select(node)
       .selectAll(".link")
       .attr("d", function(d) {
@@ -125,11 +125,7 @@ class UserGraph extends React.Component {
             d.target.y;
       });
 
-    d3.select(node)
-      .selectAll(".node")
-      .attr("transform", function(d) {
-        return "translate(" + d.x + "," + d.y + ")";
-      })
+
   }
 
   dragStarted(d) {
@@ -157,6 +153,9 @@ class UserGraph extends React.Component {
 
     if (clickDurationMs < 400) {
       d.fixed = !d.fixed;
+      if (d.fixed === true) {
+        this.props.loadUser(d.name, true);
+      }
     }
 
     let node = this.node;
@@ -165,7 +164,6 @@ class UserGraph extends React.Component {
       d.fx = d.x;
       d.fy = d.y;
       d3.select(node).select('[id="' + d.name + '"]').attr("class", "fixed");
-      this.props.loadUser(d.name, true);
     }
     else{
       d.fx = null;

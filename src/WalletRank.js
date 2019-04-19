@@ -6,6 +6,7 @@ import UserGraph from './components/UserGraph/UserGraph.js';
 import NavBar from './components/NavBar/NavBar.js';
 import Footer from './components/Footer/Footer.js';
 import * as d3 from "d3";
+import * as _ from "lodash";
 
 class WalletRank extends Component {
 
@@ -25,8 +26,10 @@ class WalletRank extends Component {
     }
     this.loaderStart = this.loaderStart.bind(this);
     this.loaderEnd = this.loaderEnd.bind(this);
-    this.searchUser = this.searchUser.bind(this);
-    this.removeUser = this.removeUser.bind(this);
+    this.loadNewUser = this.loadNewUser.bind(this);
+    this.loadUsersAndLinks = this.loadUsersAndLinks.bind(this);
+    this.WIDTH = "600";
+    this.HEIGHT = "800";
   }
 
   loadUsersAndLinks(id, is_parent) {
@@ -50,16 +53,24 @@ class WalletRank extends Component {
       var state_links = [];
       var score = res[0];
 
-      state_users[id] = {
-        name: id,
-        is_parent: is_parent
+      if (!_.has(this.state.users, id)) {
+        state_users[id] = {
+          name: id,
+          is_parent: is_parent
+        }
       }
-      console.log(state_users);
 
       if (is_parent) {
         var neighbors = res[2]
-        for (var i = neighbors['in'].length - 1; i >= 0; i--) {
+        for (var i = 0; i < neighbors['in'].length; i++) {
+          if (i >= 25) {
+            break;
+          }
+
           let in_id = neighbors['in'][i][0];
+          if (_.has(this.state.users, in_id)) {
+            continue;
+          }
           state_links.push({
             source: in_id,
             target: id
@@ -71,8 +82,15 @@ class WalletRank extends Component {
           // this.loadUsersAndLinks(in_id, false);
         }
 
-        for (var i = neighbors['out'].length - 1; i >= 0; i--) {
+        for (var i = 0; i < neighbors['out'].length; i++) {
+          if (i >= 25) {
+            break;
+          }
+
           let out_id = neighbors['out'][i][0];
+          if (_.has(this.state.users, out_id)) {
+            continue;
+          }
           state_links.push({
             source: id,
             target: out_id
@@ -92,7 +110,16 @@ class WalletRank extends Component {
         });
         this.loaderEnd();
       }
+      console.log(this.state);
     });
+  }
+
+  loadNewUser(id, is_parent) {
+    this.setState({
+      users: {},
+      links: []
+    })
+    this.loadUsersAndLinks(id, is_parent);
   }
 
   loaderStart() {
@@ -108,51 +135,16 @@ class WalletRank extends Component {
   }
 
   componentDidMount() {
+    if (!this.state.isMounted) {
+      this.loadNewUser(this.INITIAL_BAD_USER, true);
+    }
     this.setState({
       isMounted: true
     });
-    this.loadUsersAndLinks(this.INITIAL_BAD_USER, true);
   }
 
   componentWillUnmount() {
     this.state.isMounted = false;
-  }
-
-  // TODO(sid): update this function
-  searchUser(e) {
-    // Prevent button click from submitting form
-    e.preventDefault();
-
-    let users = this.state.users;
-    const newUser = document.getElementById("searchInput");
-    const form = document.getElementById("searchUser");
-
-    if (newUser.value === "") {
-      // No input, make border red to signify value is required
-      newUser.classList.add("is-danger");
-    } else {
-      users[newUser.value] = {
-        id: newUser.value,
-        rank: 675
-      };
-      this.setState({
-        users: users
-      });
-
-      newUser.classList.remove("is-danger");
-      form.reset();
-    }
-  }
-
-  // TODO(sid): update this function 
-  removeUser(user) {
-    let users = this.state.users;
-
-    delete users[user.name];
-
-    this.setState({
-      users: users
-    });
   }
 
   render() {
@@ -160,14 +152,17 @@ class WalletRank extends Component {
     return (
       <div className="WalletRank">
         <div className="container">
-          <NavBar/>
+          <NavBar loadUser={this.loadNewUser.bind(this)}/>
 
-          <UserGraph 
+          {loaders === 0 ? 
+            <UserGraph 
             users={this.state.users}
             links={this.state.links}
-            width="800" 
-            height = "600"
-            loadUser={this.loadUsersAndLinks.bind(this)} />
+            width={this.WIDTH}
+            height = {this.HEIGHT}
+            loadUser={this.loadUsersAndLinks.bind(this)} /> 
+            :
+          <svg width={this.WIDTH} height={this.HEIGHT}></svg>}
 
           <Footer/>
         </div>
