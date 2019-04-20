@@ -53,55 +53,64 @@ class WalletRank extends Component {
       var state_users = {};
       var state_links = [];
       var score = res[0];
+      var info = res[1];
 
-      if (!_.has(this.state.users, id)) {
-        state_users[id] = {
-          name: id,
-          is_parent: is_parent
+      var new_user = {
+        name: id,
+        is_parent: true,
+        rank: score.walletrank_score,
+        address: info.address,
+        balance: info.final_balance,
+        first_seen_ts: info.first_seen_ts,
+        num_inbound: info.nb_inbound_tx,
+        num_outbound: info.nb_outbound_tx,
+        received: info.total_received,
+        sent: info.total_sent
+      };
+      if (_.has(this.state.users, id)) {
+        new_user = _.merge(this.state.users[id], new_user);
+      }
+      state_users[id] = new_user;
+
+      var neighbors = res[2]
+      for (var i = 0; i < neighbors['in'].length; i++) {
+        if (i >= 25) {
+          break;
         }
+
+        let in_id = neighbors['in'][i][0];
+        if (_.has(this.state.users, in_id)) {
+          continue;
+        }
+        state_links.push({
+          source: in_id,
+          target: id
+        });
+        state_users[in_id] = {
+          name: in_id,
+          is_parent: false
+        };
+        // this.loadUsersAndLinks(in_id, false);
       }
 
-      if (is_parent) {
-        var neighbors = res[2]
-        for (var i = 0; i < neighbors['in'].length; i++) {
-          if (i >= 25) {
-            break;
-          }
-
-          let in_id = neighbors['in'][i][0];
-          if (_.has(this.state.users, in_id)) {
-            continue;
-          }
-          state_links.push({
-            source: in_id,
-            target: id
-          });
-          state_users[in_id] = {
-            name: in_id,
-            is_parent: false
-          };
-          // this.loadUsersAndLinks(in_id, false);
+      for (var i = 0; i < neighbors['out'].length; i++) {
+        if (i >= 25) {
+          break;
         }
 
-        for (var i = 0; i < neighbors['out'].length; i++) {
-          if (i >= 25) {
-            break;
-          }
-
-          let out_id = neighbors['out'][i][0];
-          if (_.has(this.state.users, out_id)) {
-            continue;
-          }
-          state_links.push({
-            source: id,
-            target: out_id
-          });
-          state_users[out_id] = {
-            name: out_id,
-            is_parent: false
-          };
-          // this.loadUsersAndLinks(out_id, false);
+        let out_id = neighbors['out'][i][0];
+        if (_.has(this.state.users, out_id)) {
+          continue;
         }
+        state_links.push({
+          source: id,
+          target: out_id
+        });
+        state_users[out_id] = {
+          name: out_id,
+          is_parent: false
+        };
+        // this.loadUsersAndLinks(out_id, false);
       }
 
       if (this.state.isMounted) {
@@ -111,7 +120,6 @@ class WalletRank extends Component {
         });
         this.loaderEnd();
       }
-      console.log(this.state);
     });
   }
 
@@ -163,8 +171,8 @@ class WalletRank extends Component {
             height = {this.HEIGHT}
             loadUser={this.loadUsersAndLinks.bind(this)} /> 
             :
-            <div class="load" height={this.HEIGHT} width={this.WIDTH}>
-              <div class="loading">
+            <div className="load" height={this.HEIGHT} width={this.WIDTH}>
+              <div className="loading">
                 <Loader
                   type="ThreeDots" 
                   width="100" 

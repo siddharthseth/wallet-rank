@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import * as d3 from "d3";
+import d3Tip from "d3-tip";
 import './UserGraph.css'
 
 class UserGraph extends React.Component {
@@ -63,6 +64,24 @@ class UserGraph extends React.Component {
       .attr("class", "link")
       .attr("marker-end", "url(#end)");
 
+    // add the tooltip
+    var tooltip = d3Tip()
+      .attr("class", "d3-tip")
+      .offset(function() {
+        return [0, 0];
+      })
+      .html(function(d) {
+        return '<strong>Address:</strong> <span class="tooltip-text">' + d.address + '</span>' +
+               '<br><strong>WalletRank Score:</strong> <span class="tooltip-text">' + d.rank + '</span>' +
+               '<br><strong>Balance:</strong> <span class="tooltip-text">' + d.balance + '</span>' +
+               '<br><strong>First Seen Transaction:</strong> <span class="tooltip-text">' + d.first_seen_ts + '</span>' +
+               '<br><strong>Number Inbound Transactions:</strong> <span class="tooltip-text">' + d.num_inbound + '</span>' +
+               '<br><strong>Number Outbound Transactions:</strong> <span class="tooltip-text">' + d.num_outbound + '</span>' +
+               '<br><strong>Total Received:</strong> <span class="tooltip-text">' + d.received + '</span>' +
+               '<br><strong>Total Sent:</strong> <span class="tooltip-text">' + d.sent + '</span>';
+      })
+    d3.select(node).call(tooltip);
+
     // define the nodes
     d3.select(node)
       .selectAll(".node")
@@ -73,7 +92,14 @@ class UserGraph extends React.Component {
         .on("start", this.dragStarted)
         .on("drag", this.dragged)
         .on("end", this.dragEnded)
-      );
+      )
+      .on("mouseover", function(d) {
+        if (d.is_parent || d.fixed) {
+          tooltip.show(d, this);
+        }
+        return null;
+      })
+      .on("mouseout", tooltip.hide);
 
     // radius scale
     let rScale = d3.scaleLinear()
