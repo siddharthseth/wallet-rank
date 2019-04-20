@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import * as d3 from "d3";
 import d3Tip from "d3-tip";
-import './UserGraph.css'
+import './UserGraph.css';
 
 class UserGraph extends React.Component {
 	constructor(props) {
@@ -68,10 +68,11 @@ class UserGraph extends React.Component {
     var tooltip = d3Tip()
       .attr("class", "d3-tip")
       .offset(function() {
-        return [0, 0];
+        return [200, 100];
       })
       .html(function(d) {
-        return '<strong>Address:</strong> <span class="tooltip-text">' + d.address + '</span>' +
+        return '<div id="tooltip-graph' + d.name  + '"></div>' + 
+               '<br><strong>Address:</strong> <span class="tooltip-text">' + d.address + '</span>' +
                '<br><strong>WalletRank Score:</strong> <span class="tooltip-text">' + d.rank + '</span>' +
                '<br><strong>Balance:</strong> <span class="tooltip-text">' + d.balance + '</span>' +
                '<br><strong>First Seen Transaction:</strong> <span class="tooltip-text">' + d.first_seen_ts + '</span>' +
@@ -96,10 +97,49 @@ class UserGraph extends React.Component {
       .on("mouseover", function(d) {
         if (d.is_parent || d.fixed) {
           tooltip.show(d, this);
+          var w = 400;
+          var h = 200;
+          var thickness = 100;
+          var colors = ['#33cc33', '#b3b3b3']
+          var anglesRange = 0.5 * Math.PI;
+          var radis = Math.min(w, 2*h)/2;
+
+          var pie = d3.pie()
+            .value(d => d)
+            .sort(null)
+            .startAngle(anglesRange * -1)
+            .endAngle(anglesRange)
+
+          var arc = d3.arc()
+            .outerRadius(radis)
+            .innerRadius(radis - thickness);
+
+          var tooltip_svg = d3.select('#tooltip-graph' + d.name)
+            .append('svg')
+            .attr('width', w)
+            .attr('height', h)
+            .attr('class', 'gauge')
+            .append('g')
+            .attr('transform', 'translate('+w/2+','+h+')');
+
+          tooltip_svg.selectAll('path')
+            .data(pie([d.rank, 800 - d.rank]))
+            .enter()
+            .append('path')
+            .attr("fill", (d, i) => colors[i])
+            .attr("d", arc);
+
+          tooltip_svg.append("text")
+            .text(d.rank)
+            .attr('class', 'tooltip-label')
+            .attr('text-anchor', 'middle')
         }
         return null;
       })
-      .on("mouseout", tooltip.hide);
+      .on("mouseout", function(d) {
+        tooltip.hide(d, this);
+        d3.select('#tooltip-graph' + d.name).remove();
+      });
 
     // radius scale
     let rScale = d3.scaleLinear()
@@ -125,7 +165,7 @@ class UserGraph extends React.Component {
         }
       })
       .attr("id", function(node) { return node.name; })
-      .attr("fill", 'blue');
+      .attr("fill", '#1a53ff');
 	}
 
   tick() {
